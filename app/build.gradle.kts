@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.rain.cryptodemo"
-    compileSdk = 33
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.rain.cryptodemo"
