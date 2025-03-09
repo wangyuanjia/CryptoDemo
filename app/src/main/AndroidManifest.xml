@@ -26,6 +26,7 @@
         <activity android:name=".CryptoActivity">
 
         </activity>
-    </application>
 
+    </application>
+    <uses-permission android:name="android.permission.INTERNET"/>
 </manifest>
