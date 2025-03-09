@@ -47,31 +47,6 @@ class CryptoViewModel : ViewModel() {
     }
 
 
-    private suspend fun accessCurrencyList() {
-        currencyList = CryptoDataCenter.getCurrencyList()
-        if (currencyList == null) {
-            _uiState.value = UiState.Error("no data")
-        } else {
-            if (tierList != null && walletBalance != null) {
-                //有数字币列表,又有用户数据的情况
-                accessCompleteData()
-            } else {
-                //只有数字币列表的情况
-                val cryptoList = currencyList?.map {
-                    CryptoBean(
-                        cryptoName = it.name,
-                        symbol = it.symbol,
-                        imageUrl = it.colorful_image_url,
-                    )
-                }?.toList()
-                cryptoList?.let {
-                    _uiState.tryEmit(value = UiState.Success(data = it))
-                }
-
-            }
-        }
-    }
-
     private fun accessCompleteData() {
         val cryptoList = mutableListOf<CryptoBean>()
         currencyList?.forEach { element ->
