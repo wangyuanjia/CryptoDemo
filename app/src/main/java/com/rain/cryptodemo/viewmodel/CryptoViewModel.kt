@@ -7,10 +7,12 @@ import com.rain.cryptodemo.data.Currency
 import com.rain.cryptodemo.data.Tier
 import com.rain.cryptodemo.data.Wallet
 import com.rain.cryptodemo.datacenter.CryptoDataCenter
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -34,7 +36,7 @@ class CryptoViewModel : ViewModel() {
             _uiState.value = UiState.Loading
 //            _text.value = newText
 
-            val currencyListResult = async {  CryptoDataCenter.getCurrencyList() }
+            val currencyListResult = async { CryptoDataCenter.getCurrencyList() }
             val tierResult = async { CryptoDataCenter.getTierList() }
             val walletBalanceResult = async { CryptoDataCenter.getWalletBalance() }
             currencyList = currencyListResult.await()
@@ -49,31 +51,31 @@ class CryptoViewModel : ViewModel() {
     }
 
 
-    private fun accessCompleteData() {
-        val cryptoList = mutableListOf<CryptoBean>()
-        currencyList?.forEach { element ->
-            val cryptoBean = CryptoBean()
-            val tier = tierList?.find { it.from_currency == element.symbol }
-            val walletBalance = walletBalance?.find { it.currency == element.symbol }
-            if(walletBalance != null){
-                val money = multiplyAndRound(
-                    walletBalance.amount, tier?.rates?.get(0)?.rate?.toDouble() ?: 0.0,
-                    element.display_decimal
-                        ?: 8,
-                )
-                cryptoBean.money = money
-                cryptoBean.amount = (walletBalance.amount).toString()
+    private suspend fun accessCompleteData() {
+        val result = withContext(Dispatchers.Default) {
+            mutableListOf<CryptoBean>().apply {
+                currencyList?.forEach { element ->
+                    val cryptoBean = CryptoBean()
+                    val tier = tierList?.find { it.from_currency == element.symbol }
+                    val walletBalance = walletBalance?.find { it.currency == element.symbol }
+                    if (walletBalance != null) {
+                        val money = multiplyAndRound(
+                            walletBalance.amount, tier?.rates?.get(0)?.rate?.toDouble() ?: 0.0,
+                            element.display_decimal
+                                ?: 8,
+                        )
+                        cryptoBean.money = money
+                        cryptoBean.amount = (walletBalance.amount).toString()
+                    }
+                    cryptoBean.cryptoName = element.name
+                    cryptoBean.symbol = element.symbol
+                    cryptoBean.imageUrl = element.colorful_image_url
+                    this.add(cryptoBean)
+                }
             }
-            cryptoBean.cryptoName = element.name
-            cryptoBean.symbol = element.symbol
-
-
-            cryptoBean.imageUrl = element.colorful_image_url
-
-            cryptoList.add(cryptoBean)
         }
 
-        _uiState.tryEmit(value = UiState.Success(data = cryptoList))
+        _uiState.tryEmit(value = UiState.Success(data = result))
     }
 
     private fun multiplyAndRound(
