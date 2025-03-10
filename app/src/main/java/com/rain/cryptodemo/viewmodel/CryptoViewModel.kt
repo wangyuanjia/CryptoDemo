@@ -42,6 +42,8 @@ class CryptoViewModel : ViewModel() {
             walletBalance = walletBalanceResult.await()
             if (currencyList != null && tierList != null && walletBalance != null) {
                 accessCompleteData()
+            } else {
+                _uiState.value = UiState.Error("no data")
             }
         }
     }

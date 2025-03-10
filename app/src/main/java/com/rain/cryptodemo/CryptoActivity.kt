@@ -29,7 +29,7 @@ class CryptoActivity : AppCompatActivity() {
         viewModel.accessData()
     }
 
-    @SuppressLint("NotifyDataSetChanged")
+    @SuppressLint("NotifyDataSetChanged", "SetTextI18n")
     private fun initView() {
 
         binding.RV.layoutManager = LinearLayoutManager(this)
@@ -48,8 +48,7 @@ class CryptoActivity : AppCompatActivity() {
                         val sum = state.data.sumOf {
                             it.money?.toDoubleOrNull() ?: 0.0
                         }
-                        binding.tvTotal.text = "$ ${sum.toString()} USD"
-                        Log.d("CryptoActivity","state.data"+state.data)
+                        binding.tvTotal.text = "$ $sum USD"
                         adapter.items = state.data
                         adapter.notifyDataSetChanged()
 

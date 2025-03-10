@@ -55,7 +55,7 @@ class CryptoAdapter(
                 .target(binding.image)
                 .listener(onError={
                     request, result ->
-                    Log.d("rain","request =abc ${request.data}" + "result"+result.throwable)
+                    Log.d("CryptoAdapter","request =abc ${request.data}" + "result"+result.throwable)
                 })
                 .build()
 
